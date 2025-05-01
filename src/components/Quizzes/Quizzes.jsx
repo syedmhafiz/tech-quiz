@@ -2,6 +2,7 @@ import React from 'react';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
+import removeNb from '../../utils/helper';
 
 function Quizzes() {
   const quizProps = useOutletContext();
@@ -46,11 +47,11 @@ function Quizzes() {
 
   return (
     <div className='flex justify-center'>
-        <div className='w-[1250px] h-[75vh] bg-[#22577a] text-white'>
+        <div className='w-[1250px] h-[75vh] bg-[#0f8775] text-white'>
           <div className='p-12'>
             <h1 className='font-bold text-2xl my-4 text-[#f0f3bd]'>Select the correct answers from below...</h1>
             <h3 className='font-bold text-2xl py-4 mt-4'>
-              Q.{' '}{questions[counter]?.question.slice(3, -4)}
+              Q.{' '}{removeNb(questions[counter]?.question?.slice(3, -4))}
             </h3>
             <div className='grid grid-cols-2 grid-row-2 gap-x-24 gap-y-12 p-10 text-xl'>
                 <button onClick={checkCorrectAns} id='1' className=''>
