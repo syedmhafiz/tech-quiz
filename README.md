@@ -24,4 +24,4 @@ This is a web-based quiz application built with **React**, styled with **Tailwin
 - **Routing**: React Router (v6.x)
 - **Build Tool**: Vite (recommended for faster development) or Create React App
 - **Version Control**: Git/GitHub
-- **Deployment**: Configurable for GitHub Pages, Netlify, Vercel, or other platforms
+- **Deployment**: Configurable for GitHub Pages
