@@ -10,8 +10,7 @@ function Footer() {
                 target="_blank"
                 style={
                   { textDecoration: 'none',
-                    color: "black",
-                    fontWeight: "bold" }
+                    color: "black" }
                 }
               >সৈ.মা.হা.</Link> © 2025 
         </h3>
