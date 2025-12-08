@@ -1,6 +1,5 @@
 {
   "name": "quiz-tech",
-  "homepage": "https://syedmhafiz.github.io/tech-quiz",
   "version": "1.0.0",
   "private": true,
   "dependencies": {
