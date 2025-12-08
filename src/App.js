@@ -1,5 +1,6 @@
- import React from "react";
+import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { API_URL } from "./utils/constants";
 import Home from "./components/Home/Home";
 import Main from "./Layouts/Main";
 import Quiz from "./Layouts/Quiz";
@@ -18,12 +19,12 @@ function App() {
         {
           path: '/',
           element: <Home></Home>,
-          loader: () => fetch('https://quiz-api-two.vercel.app/quiz')
+          loader: () => fetch(API_URL)
         },
         {
           path: '/home',
           element: <Home></Home>,
-          loader: () => fetch('https://quiz-api-two.vercel.app/quiz')
+          loader: () => fetch(API_URL)
         }
       ]
     },
@@ -35,12 +36,12 @@ function App() {
         {
           path: '/quizzes',
           element: <Quizzes></Quizzes>,
-          loader: () => fetch('https://quiz-api-two.vercel.app/quiz')
+          loader: () => fetch(API_URL)
         },
         {
           path: '/quizzes/quiz',
           element: <Quizzes></Quizzes>,
-          loader: () => fetch('https://quiz-api-two.vercel.app/quiz')
+          loader: () => fetch(API_URL)
         }
       ]
     },
