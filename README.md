@@ -1,27 +1,82 @@
 # Tech Quiz App
-
-## Overview
-
 > **Take the quiz and master the technology which you hate!**
 
-Technology quizzes are an engaging way to expand knowledge and stay updated in the ever-evolving tech world. They cover various topics, including programming and version control, promoting learning and problem-solving. Quizzes are beneficial for assessing knowledge, fostering growth in academic and professional settings, and encouraging collaboration. The **Tech Quiz App** provides an exciting adventure to test your tech expertise and dive into the vast world of technology.
+A web-based quiz application built with **React** and styled with **Tailwind CSS**. Test your expertise across various tech topics in a responsive, interactive environment.
 
-This is a web-based quiz application built with **React**, styled with **Tailwind CSS**, and navigated using **React Router**. It allows users to take quizzes on various tech topics, track their scores, and improve their skills in a fun and interactive way.
+## ✨ Features
 
-## Features
+- **Interactive Quizzes**: Multiple-choice questions on programming & tech.
+- **Responsive Design**: Optimized for both desktop and mobile users.
+- **Real-time Scoring**: Track your performance as you go.
+- **Dynamic Routing**: Smooth navigation powered by React Router.
 
-- **Interactive Quizzes**: Engage with multiple-choice questions on programming, version control, and other tech topics.
-- **Dynamic Navigation**: Seamlessly navigate between home, quiz, and results pages using React Router.
-- **Responsive Design**: Fully responsive UI styled with Tailwind CSS, ensuring a great experience on desktop and mobile.
-- **Score Tracking**: View your quiz results and track progress.
-- **Topic Variety**: Quizzes cover a range of tech subjects to challenge and educate users.
-- **User-Friendly Interface**: Clean and modern design for an enjoyable user experience.
+## 🛠 Tech Stack
 
-## Tech Stack
+- **React** (v18+)
+- **Tailwind CSS**
+- **React Router**
+- **Docker** & **Nginx**
 
-- **Frontend**: React (v18.x)
-- **Styling**: Tailwind CSS (v3.x)
-- **Routing**: React Router (v6.x)
-- **Build Tool**: Vite (recommended for faster development) or Create React App
-- **Version Control**: Git/GitHub
-- **Deployment**: Configurable for GitHub Pages
+## 🐳 Running with Docker
+
+The app uses a multi-stage Dockerfile (Node.js for building, Nginx for serving) for optimal performance and minimal image size.
+
+### Quick Start
+
+**Build the image:**
+```bash
+docker build -t tech-quiz .
+```
+
+**Run the container:**
+```bash
+docker run -d -p 80:80 --name tech-quiz-app tech-quiz
+```
+
+Visit **http://localhost:80** to see the app running.
+
+### Useful Docker Commands
+
+**Stop the container:**
+```bash
+docker stop tech-quiz-app
+```
+
+**Start it again:**
+```bash
+docker start tech-quiz-app
+```
+
+**View logs:**
+```bash
+docker logs tech-quiz-app
+```
+
+**Remove the container:**
+```bash
+docker rm -f tech-quiz-app
+```
+
+### Using from Docker Hub
+
+```bash
+docker pull syedmhafiz/tech-quiz:latest
+docker run -d -p 80:80 syedmhafiz/tech-quiz:latest
+```
+
+## 💻 Local Development
+
+1. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+2. **Start dev server**:
+   ```bash
+   npm run start
+   ```
+
+3. **Build for production**:
+   ```bash
+   npm run build
+   ```
