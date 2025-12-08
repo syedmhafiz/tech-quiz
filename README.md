@@ -3,21 +3,22 @@
 
 A web-based quiz application built with **React** and styled with **Tailwind CSS**. Test your expertise across various tech topics in a responsive, interactive environment.
 
-## ✨ Features
+
+## Features
 
 - **Interactive Quizzes**: Multiple-choice questions on programming & tech.
 - **Responsive Design**: Optimized for both desktop and mobile users.
 - **Real-time Scoring**: Track your performance as you go.
 - **Dynamic Routing**: Smooth navigation powered by React Router.
 
-## 🛠 Tech Stack
+## Tech Stack
 
 - **React** (v18+)
 - **Tailwind CSS**
 - **React Router**
 - **Docker** & **Nginx**
 
-## 🐳 Running with Docker
+## Running with Docker
 
 The app uses a multi-stage Dockerfile (Node.js for building, Nginx for serving) for optimal performance and minimal image size.
 
@@ -64,7 +65,7 @@ docker pull syedmhafiz/tech-quiz:latest
 docker run -d -p 80:80 syedmhafiz/tech-quiz:latest
 ```
 
-## 💻 Local Development
+## Local Development
 
 1. **Install dependencies**:
    ```bash
