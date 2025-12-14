@@ -43,8 +43,8 @@ jobs:
           retention-days: 7
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
-  docker:
-    name: Build & Push Docker Image
+  ecr:
+    name: Build & Push Docker Image to ECR
     needs: build
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
