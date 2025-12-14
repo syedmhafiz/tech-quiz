@@ -102,11 +102,7 @@ This project includes an automated CI/CD pipeline that builds and pushes Docker 
    git push origin main
    ```
 
-### 📚 Documentation
-
-See **[ECR-SETUP.md](ECR-SETUP.md)** for complete setup instructions.
-
-### 🔄 Workflow
+###  Workflow
 
 The pipeline automatically:
 - ✅ Runs tests and builds the React app
@@ -115,30 +111,26 @@ The pipeline automatically:
 - ✅ Runs security scanning with Trivy
 - ✅ Optionally pushes to Docker Hub
 
-### 🏷️ Image Tags
+### Image Tags
 
 Images are tagged with:
 - `latest` - Most recent build
 - `main-<sha>` - Specific commit
 - `YYYYMMDD-HHmmss` - Timestamp
 
-### 📦 Pull from ECR
+### Pull from ECR
 
 ```bash
 # Login to ECR
-aws ecr get-login-password --region us-east-1 | \
+aws ecr get-login-password --region us-west-2 | \
     docker login --username AWS --password-stdin \
-    <account-id>.dkr.ecr.us-east-1.amazonaws.com
+    <account-id>.dkr.ecr.us-west-2.amazonaws.com
 
 # Pull and run
-docker pull <account-id>.dkr.ecr.us-east-1.amazonaws.com/tech-quiz:latest
-docker run -p 80:80 <account-id>.dkr.ecr.us-east-1.amazonaws.com/tech-quiz:latest
+docker pull <account-id>.dkr.ecr.us-west-2.amazonaws.com/tech-quiz:latest
+docker run -p 80:80 <account-id>.dkr.ecr.us-west-2.amazonaws.com/tech-quiz:latest
 ```
-
-For detailed instructions, see [ECR-SETUP.md](ECR-SETUP.md).
-
 
 ## License
 
 MIT
-
