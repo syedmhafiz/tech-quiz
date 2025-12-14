@@ -159,5 +159,5 @@ jobs:
 
       - name: Docker Hub success
         run: |
-          echo "✅ Image pushed to Docker Hub!"
-          echo "📦 docker pull ${{ secrets.DOCKER_USERNAME }}/tech-quiz:latest"
+          echo "Image pushed to Docker Hub!"
+          echo "docker pull ${{ secrets.DOCKER_USERNAME }}/tech-quiz:latest"
