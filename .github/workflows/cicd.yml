@@ -1,4 +1,4 @@
-name: CI and Deploy Tech Quiz
+name: CI/CD - Tech Quiz
 
 on:
   push:
@@ -6,11 +6,16 @@ on:
   pull_request:
     branches: [main]
 
-jobs:
-  ci:
-    name: Run Tests and Build
-    runs-on: ubuntu-latest
+env:
+  NODE_VERSION: '18'
+  AWS_REGION: 'us-west-2'
+  ECR_REPOSITORY: 'tech-quiz'
 
+jobs:
+  build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -18,43 +23,141 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Run tests (with no tests check) 
+      - name: Run tests
         run: npm test -- --watchAll=false --passWithNoTests
 
-      - name: Build app
+      - name: Build React application
         run: npm run build
 
-  deploy:
-    name: Deploy to GitHub Pages
-    needs: ci
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    runs-on: ubuntu-latest
+      - name: Upload build artifacts (optional)
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: build/
+          retention-days: 7
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
+  ecr:
+    name: Build & Push Docker Image to ECR
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    outputs:
+      image-tag: ${{ steps.image-info.outputs.image-tag }}
+      image-uri: ${{ steps.image-info.outputs.image-uri }}
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          node-version: 18
-          cache: 'npm'
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION || 'us-west-2' }}
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build app
-        run: npm run build
+      - name: Create ECR repository if needed
+        run: |
+          aws ecr describe-repositories --repository-names ${{ env.ECR_REPOSITORY }} || \
+          aws ecr create-repository --repository-name ${{ env.ECR_REPOSITORY }} \
+            --image-scanning-configuration scanOnPush=true \
+            --region ${{ env.AWS_REGION || 'us-west-2' }}
+        continue-on-error: true
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Generate image metadata
+        id: meta
+        uses: docker/metadata-action@v5 
         with:
-          github_token: ${{ secrets.Deploy }}
-          publish_dir: ./build
-          publish_branch: gh-pages
+          images: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}
+          tags: |
+            type=sha,prefix=sha-,format=short
+            type=raw,value=latest
+            type=raw,value={{date 'YYYYMMDD-HHmmss'}}
+
+      - name: Build and push Docker image to ECR
+        id: docker-build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64
+          provenance: false 
+
+      - name: Run Trivy vulnerability scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+          format: 'table'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '0'  
+        continue-on-error: true
+
+      - name: Output image information
+        id: image-info
+        run: |
+          IMAGE_URI="${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest"
+          IMAGE_TAG="sha-${{ github.sha }}"
+          
+          echo "image-uri=${IMAGE_URI}" >> $GITHUB_OUTPUT
+          echo "image-tag=${IMAGE_TAG}" >> $GITHUB_OUTPUT
+          
+          echo "✅ Docker image built and pushed successfully!"
+          echo "📦 Image URI: ${IMAGE_URI}"
+          echo "🏷️  SHA Tag: ${IMAGE_TAG}"
+          echo "🔍 All Tags: ${{ steps.meta.outputs.tags }}"
+
+  dockerhub:
+    name: Push to Docker Hub
+    needs: docker
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.DOCKER_USERNAME != ''
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push to Docker Hub
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/tech-quiz:latest
+            ${{ secrets.DOCKER_USERNAME }}/tech-quiz:${{ github.sha }}
+          cache-from: type=gha
+          platforms: linux/amd64
+
+      - name: Docker Hub success
+        run: |
+          echo "✅ Image pushed to Docker Hub!"
+          echo "📦 docker pull ${{ secrets.DOCKER_USERNAME }}/tech-quiz:latest"

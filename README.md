@@ -81,3 +81,64 @@ docker run -d -p 80:80 syedmhafiz/tech-quiz:latest
    ```bash
    npm run build
    ```
+
+## CI/CD Deployment
+
+This project includes an automated CI/CD pipeline that builds and pushes Docker images to **Amazon ECR**.
+
+### 🚀 Quick Start
+
+1. **Create ECR Repository**
+   ```bash
+   aws ecr create-repository --repository-name tech-quiz --region us-east-1
+   ```
+
+2. **Configure GitHub Secrets**
+   - `AWS_ACCESS_KEY_ID` - Your AWS access key
+   - `AWS_SECRET_ACCESS_KEY` - Your AWS secret key
+
+3. **Push to main branch**
+   ```bash
+   git push origin main
+   ```
+
+### 📚 Documentation
+
+See **[ECR-SETUP.md](ECR-SETUP.md)** for complete setup instructions.
+
+### 🔄 Workflow
+
+The pipeline automatically:
+- ✅ Runs tests and builds the React app
+- ✅ Creates a Docker image
+- ✅ Pushes to Amazon ECR
+- ✅ Runs security scanning with Trivy
+- ✅ Optionally pushes to Docker Hub
+
+### 🏷️ Image Tags
+
+Images are tagged with:
+- `latest` - Most recent build
+- `main-<sha>` - Specific commit
+- `YYYYMMDD-HHmmss` - Timestamp
+
+### 📦 Pull from ECR
+
+```bash
+# Login to ECR
+aws ecr get-login-password --region us-east-1 | \
+    docker login --username AWS --password-stdin \
+    <account-id>.dkr.ecr.us-east-1.amazonaws.com
+
+# Pull and run
+docker pull <account-id>.dkr.ecr.us-east-1.amazonaws.com/tech-quiz:latest
+docker run -p 80:80 <account-id>.dkr.ecr.us-east-1.amazonaws.com/tech-quiz:latest
+```
+
+For detailed instructions, see [ECR-SETUP.md](ECR-SETUP.md).
+
+
+## License
+
+MIT
+
