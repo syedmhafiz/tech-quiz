@@ -90,7 +90,7 @@ This project includes an automated CI/CD pipeline that builds and pushes Docker 
 
 1. **Create ECR Repository**
    ```bash
-   aws ecr create-repository --repository-name tech-quiz --region us-east-1
+   aws ecr create-repository --repository-name tech-quiz --region us-west-2
    ```
 
 2. **Configure GitHub Secrets**
@@ -129,6 +129,102 @@ aws ecr get-login-password --region us-west-2 | \
 # Pull and run
 docker pull <account-id>.dkr.ecr.us-west-2.amazonaws.com/tech-quiz:latest
 docker run -p 80:80 <account-id>.dkr.ecr.us-west-2.amazonaws.com/tech-quiz:latest
+```
+
+## Kubernetes Deployment (Minikube)
+
+Deploy the app to a local Kubernetes cluster using Minikube.
+
+### Prerequisites
+
+Install the required tools on macOS:
+
+```bash
+# Install kubectl
+brew install kubectl
+
+# Install Minikube
+brew install minikube
+```
+
+### Start Minikube
+
+```bash
+# Start cluster with Docker driver
+minikube start --driver=docker
+
+# Verify cluster is running
+minikube status
+kubectl get nodes
+```
+
+### Deploy the App
+
+```bash
+# Apply all manifests (namespace, deployment, service, ingress)
+kubectl apply -f manifests/
+
+# Watch pods come up
+kubectl get pods -n tech-quiz -w
+
+# Get the URL to access the app
+minikube service tech-quiz -n tech-quiz --url
+```
+
+### Access via Ingress (Optional)
+
+For hostname-based access:
+
+```bash
+# Enable ingress addon
+minikube addons enable ingress
+
+# Add to /etc/hosts
+echo "$(minikube ip) tech-quiz.local" | sudo tee -a /etc/hosts
+
+# Access in browser
+open http://tech-quiz.local
+```
+
+### Local Image Build (Without Registry)
+
+Build and deploy without pushing to a registry:
+
+```bash
+# Point Docker to Minikube's daemon
+eval $(minikube docker-env)
+
+# Build image inside Minikube
+docker build -t tech-quiz:local .
+
+# Update deployment to use local image
+# Edit k8s/deployment.yaml: image: tech-quiz:local, imagePullPolicy: Never
+kubectl apply -f manifests/
+```
+
+### Useful kubectl Commands
+
+```bash
+# View all resources in namespace
+kubectl get all -n tech-quiz
+
+# View pod logs
+kubectl logs -f deployment/tech-quiz -n tech-quiz
+
+# Exec into a pod
+kubectl exec -it deployment/tech-quiz -n tech-quiz -- sh
+
+# Scale replicas
+kubectl scale deployment tech-quiz --replicas=3 -n tech-quiz
+
+# Rollout status
+kubectl rollout status deployment/tech-quiz -n tech-quiz
+
+# Rollback to previous version
+kubectl rollout undo deployment/tech-quiz -n tech-quiz
+
+# Delete all resources
+kubectl delete -f manifests/
 ```
 
 ## License

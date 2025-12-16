@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tech-quiz
+  namespace: tech-quiz
+  labels:
+    app: tech-quiz
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: tech-quiz
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: tech-quiz
+    spec:
+      containers:
+        - name: tech-quiz
+          image: tech-quiz:local # For local builds with Minikube, if you are using ECR, use the image name from ECR or Docker Hub
+          imagePullPolicy: Never # For local builds with Minikube, if you are using ECR, use `Always`
+          ports:
+            - containerPort: 80
+              protocol: TCP
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+            limits:
+              memory: "128Mi"
+              cpu: "250m"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            successThreshold: 1
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
