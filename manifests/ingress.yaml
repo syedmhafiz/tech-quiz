@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tech-quiz
+  namespace: tech-quiz
+  labels:
+    app: tech-quiz
+  annotations:
+    # For Minikube's Nginx Ingress Controller
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: tech-quiz.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: tech-quiz
+                port:
+                  number: 80
