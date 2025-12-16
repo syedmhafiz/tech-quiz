@@ -3,8 +3,6 @@ name: CI/CD - Tech Quiz
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
 
 env:
   NODE_VERSION: '18'
